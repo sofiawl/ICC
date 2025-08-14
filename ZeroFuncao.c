@@ -30,147 +30,10 @@ typedef struct {
     tempo = timestamp() - tempo;
 */
 
-
-// Retorna valor do erro quando método finalizou. Este valor depende de tipoErro
-real_t newtonRaphson (Polinomio p, real_t x0, int criterioParada, int *it, real_t *raiz)
-{
-    switch(criterioParada){
-        // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
-        case 1: 
-
-            break;
-        // Criterio-02: |f(xk)| <= DLB_EPSOLON
-        case 2:
-
-            break;
-        // Criterio-03: ULP's entre xk e xk-1 <= 3
-        case 3:
-
-            break;
-    }
-}
-
-
-// Retorna valor do erro quando método finalizou. Este valor depende de tipoErro
-real_t bisseccao (Polinomio p, real_t a, real_t b, int criterioParada, int *it, real_t *raiz, int calcPolinomio)
-{
-    real_t c_old, c_new;
-    real_t xa, xm;
-    real_t erro;
-    
-    switch (calcPolinomio)
-    {
-        case 1: // Calculo Rápido
-            c_new = (a + b) / 2;
-            calcPolinomio_rapido(p, a, &xa, NULL);
-            calcPolinomio_rapido(p, c_new, &xm, NULL);
-            if(xa*xm < 0)
-                a = c_new;
-            else if(xa*xm > 0)
-                b = c_new;
-            else {
-                *raiz = c_new;
-                return 0;
-            }
-
-            switch(criterioParada){
-                // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
-                case 1: 
-                    do{
-                        c_old = c_new;
-                        c_new = (a + b)/ 2;
-                        calcPolinomio_rapido(p, a, &xa, NULL);
-                        calcPolinomio_rapido(p, c_new, &xm, NULL);
-                        if(xa*xm < 0)
-                            a = c_new;
-                        else if(xa*xm > 0)
-                            b = c_new;
-                        else {
-                            *raiz = c_new;
-                            return 0;
-                        }
-                        (*it)++;
-                        erro = (c_new - c_old) / c_new;
-                    }while(erro > EPS);
-                    break;
-                // Criterio-02: |f(xk)| <= DLB_EPSOLON
-                case 2:
-                    do{ 
-                        c_old = c_new;
-                        c_new = (a + b)/ 2;
-                        calcPolinomio_rapido(p, a, &xa, NULL);
-                        calcPolinomio_rapido(p, c_new, &xm, NULL);
-                        if(xa*xm < 0)
-                            a = c_new;
-                        else if(xa*xm > 0)
-                            b = c_new;
-                        else {
-                            *raiz = c_new;
-                            return 0;
-                        }
-                        (*it)++;
-                        erro = xm;
-                    }while(xm > ZERO);
-                    break;
-                // Criterio-03: ULP's entre xk e xk-1 <= 3
-                case 3:
-                    do {    
-                        c_old = c_new;
-                        c_new = (a + b)/ 2;
-                        calcPolinomio_rapido(p, a, &xa, NULL);
-                        calcPolinomio_rapido(p, c_new, &xm, NULL);
-                        if(xa*xm < 0)
-                            a = c_new;
-                        else if(xa*xm > 0)
-                            b = c_new;
-                        else {
-                            *raiz = c_new;
-                            return 0;
-                        }
-                        (*it)++;
-                        erro = xm;
-                    }while(xm > ZERO);
-
-                    break;
-            }
-            break;
-
-        case 2: // Cálculo Lento
-            c_new = (a + b) / 2;
-            calcPolinomio_lento(p, a, &xa, NULL);
-            calcPolinomio_lento(p, c_new, &xm, NULL);
-            if(xa*xm > 0)
-                a = c_new;
-            else if(xa*xm < 0)
-                b = c_new;
-            else {
-                *raiz = c_new;
-                return 0;
-            }
-
-            switch(criterioParada){
-                // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
-                case 1: 
-
-                    break;
-                // Criterio-02: |f(xk)| <= DLB_EPSOLON
-                case 2:
-
-                    break;
-                // Criterio-03: ULP's entre xk e xk-1 <= 3
-                case 3:
-
-                    break;
-            }
-            break;
-
-    }    
-    
-}
-
-
 void calcPolinomio_rapido(Polinomio p, real_t x, real_t *px, real_t *dpx)
 {
+    *px = 0;
+    *dpx = 0;
     real_t b = 0;
     real_t c = 0;
     for(int i = p.grau; i > 0; --i) {
@@ -185,9 +48,261 @@ void calcPolinomio_rapido(Polinomio p, real_t x, real_t *px, real_t *dpx)
 
 void calcPolinomio_lento(Polinomio p, real_t x, real_t *px, real_t *dpx)
 {
-    real_t *px = 0;
+    *px = 0;
+    *dpx = 0;
     for(int i = p.grau; i >= 0; --i){
         *px += p.p[i]*pow(x, i);
         *dpx += p.p[i]*i*pow(x, i-1);
     }
 }
+
+
+// Retorna valor do erro quando método finalizou. Este valor depende de tipoErro
+real_t newtonRaphson (Polinomio p, real_t x0, int criterioParada, int *it, real_t *raiz, int calcPolinomio)
+{
+    real_t x_new, dx, fx_old, fx_new;
+    real_t erro = 0;
+    switch (calcPolinomio)
+    {
+        case 1: // Cálculo Rápido
+            switch(criterioParada){
+                // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
+                case 1: 
+                    do{
+                        calcPolinomio_rapido(p, x0, &fx_old, &dx);
+                        x_new = x0 - (fx_old / dx);
+                        calcPolinomio_rapido(p, x_new, &fx_new, NULL);
+                        erro = fabs((fx_new - fx_old) / fx_new);
+                        x0 = x_new;
+                    }while(erro > EPS);
+                    break;
+                // Criterio-02: |f(xk)| <= DLB_EPSOLON
+                case 2:
+                    do{
+                        calcPolinomio_rapido(p, x0, &fx_old, &dx);
+                        x_new = x0 - (fx_old / dx);
+                        calcPolinomio_rapido(p, x_new, &fx_new, NULL);
+                        erro = fabs(fx_new);
+                        x0 = x_new;
+                    }while(erro > ZERO);
+                    break;
+                // Criterio-03: ULP's entre xk e xk-1 <= 3
+                case 3:
+                    do{
+                        calcPolinomio_rapido(p, x0, &fx_old, &dx);
+                        x_new = x0 - (fx_old / dx);
+                        calcPolinomio_rapido(p, x_new, &fx_new, NULL);
+                        erro = fabs((x_new - x0) - 1);
+                        x0 = x_new;
+                    }while(erro > ULPS);
+                    break;
+            }
+
+            break;
+
+        case 2: // Cálculo Lento
+            switch(criterioParada){
+                // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
+                case 1: 
+                    do{
+                        calcPolinomio_lento(p, x0, &fx_old, &dx);
+                        x_new = x0 - (fx_old / dx);
+                        calcPolinomio_lento(p, x_new, &fx_new, NULL);
+                        erro = fabs((fx_new - fx_old) / fx_new);
+                        x0 = x_new;
+                    }while(erro > EPS);
+                    break;
+                // Criterio-02: |f(xk)| <= DLB_EPSOLON
+                case 2:
+                    do{
+                        calcPolinomio_lento(p, x0, &fx_old, &dx);
+                        x_new = x0 - (fx_old / dx);
+                        calcPolinomio_lento(p, x_new, &fx_new, NULL);
+                        erro = fabs(fx_new);
+                        x0 = x_new;
+                    }while(erro > ZERO);
+                    break;
+                // Criterio-03: ULP's entre xk e xk-1 <= 3
+                case 3:
+                    do{
+                        calcPolinomio_lento(p, x0, &fx_old, &dx);
+                        x_new = x0 - (fx_old / dx);
+                        calcPolinomio_lento(p, x_new, &fx_new, NULL);
+                        erro = fabs((x_new - x0) - 1);
+                        x0 = x_new;
+                    }while(erro > ULPS);
+                    break;
+            }
+
+            break;        
+    }
+
+    return erro;
+    
+}
+
+
+// Retorna valor do erro quando método finalizou. Este valor depende de tipoErro
+real_t bisseccao (Polinomio p, real_t a, real_t b, int criterioParada, int *it, real_t *raiz, int calcPolinomio)
+{
+    real_t c_old, c_new;
+    real_t fxa, fxm;
+    real_t erro = 0;
+    
+    switch (calcPolinomio)
+    {
+        case 1: // Cálculo Rápido
+            c_new = (a + b) / 2;
+            calcPolinomio_rapido(p, a, &fxa, NULL);
+            calcPolinomio_rapido(p, c_new, &fxm, NULL);
+            if(fxa*fxm < 0)
+                a = c_new;
+            else if(fxa*fxm > 0)
+                b = c_new;
+            else {
+                *raiz = c_new;
+                return erro;
+            }
+
+            switch(criterioParada){
+                // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
+                case 1: 
+                    do{
+                        c_old = c_new;
+                        c_new = (a + b)/ 2;
+                        calcPolinomio_rapido(p, a, &fxa, NULL);
+                        calcPolinomio_rapido(p, c_new, &fxm, NULL);
+                        if(fxa*fxm < 0)
+                            a = c_new;
+                        else if(fxa*fxm > 0)
+                            b = c_new;
+                        else {
+                            *raiz = c_new;
+                            return 0;
+                        }
+                        (*it)++;
+                        erro = fabs((c_new - c_old) / c_new);
+                    }while(erro > EPS);
+                    break;
+                // Criterio-02: |f(xk)| <= DLB_EPSOLON
+                case 2:
+                    do{ 
+                        c_old = c_new;
+                        c_new = (a + b)/ 2;
+                        calcPolinomio_rapido(p, a, &fxa, NULL);
+                        calcPolinomio_rapido(p, c_new, &fxm, NULL);
+                        if(fxa*fxm < 0)
+                            a = c_new;
+                        else if(fxa*fxm > 0)
+                            b = c_new;
+                        else {
+                            *raiz = c_new;
+                            return 0;
+                        }
+                        (*it)++;
+                        erro = fabs(fxm);
+                    }while(erro > ZERO);
+                    break;
+                // Criterio-03: ULP's entre xk e xk-1 <= 3
+                case 3:
+                    do {    
+                        c_old = c_new;
+                        c_new = (a + b)/ 2;
+                        calcPolinomio_rapido(p, a, &fxa, NULL);
+                        calcPolinomio_rapido(p, c_new, &fxm, NULL);
+                        if(fxa*fxm < 0)
+                            a = c_new;
+                        else if(fxa*fxm > 0)
+                            b = c_new;
+                        else {
+                            *raiz = c_new;
+                            return 0;
+                        }
+                        (*it)++;
+                        erro = fabs((fxa - fxm) - 1);
+                    }while(erro > ULPS);
+
+                    break;
+            }
+            break;
+
+        case 2: // Cálculo Lento
+            c_new = (a + b) / 2;
+            calcPolinomio_lento(p, a, &fxa, NULL);
+            calcPolinomio_lento(p, c_new, &fxm, NULL);
+            if(fxa*fxm > 0)
+                a = c_new;
+            else if(fxa*fxm < 0)
+                b = c_new;
+            else {
+                *raiz = c_new;
+                return 0;
+            }
+
+            switch(criterioParada){
+                // Criterio-01: |xk - xk-1| / |xk| <= 10 ^-17
+                case 1: 
+                    do{
+                        c_old = c_new;
+                        c_new = (a + b)/ 2;
+                        calcPolinomio_lento(p, a, &fxa, NULL);
+                        calcPolinomio_lento(p, c_new, &fxm, NULL);
+                        if(fxa*fxm < 0)
+                            a = c_new;
+                        else if(fxa*fxm > 0)
+                            b = c_new;
+                        else {
+                            *raiz = c_new;
+                            return erro;
+                        }
+                        (*it)++;
+                        erro = fabs((c_new - c_old) / c_new);
+                    }while(erro > EPS);
+                    break;
+                // Criterio-02: |f(xk)| <= DLB_EPSOLON
+                case 2:
+                    do{ 
+                        c_old = c_new;
+                        c_new = (a + b)/ 2;
+                        calcPolinomio_lento(p, a, &fxa, NULL);
+                        calcPolinomio_lento(p, c_new, &fxm, NULL);
+                        if(fxa*fxm < 0)
+                            a = c_new;
+                        else if(fxa*fxm > 0)
+                            b = c_new;
+                        else {
+                            *raiz = c_new;
+                            return 0;
+                        }
+                        (*it)++;
+                        erro = fabs(fxm);
+                    }while(erro > ZERO);
+                    break;
+                // Criterio-03: ULP's entre xk e xk-1 <= 3
+                case 3:
+                    do {    
+                        c_old = c_new;
+                        c_new = (a + b)/ 2;
+                        calcPolinomio_lento(p, a, &fxa, NULL);
+                        calcPolinomio_lento(p, c_new, &fxm, NULL);
+                        if(fxa*fxm < 0)
+                            a = c_new;
+                        else if(fxa*fxm > 0)
+                            b = c_new;
+                        else {
+                            *raiz = c_new;
+                            return 0;
+                        }
+                        (*it)++;
+                        erro = fabs((fxa - fxm) - 1);
+                    }while(erro > ULPS);
+
+                    break;
+            }
+            break;
+
+    }    
+    
+    return erro;
+}
+
