@@ -7,7 +7,7 @@
 #define ZERO DBL_EPSILON
 
 // Parâmetros para teste de convergência
-#define MAXIT 500
+#define MAXIT 600
 #define EPS 1.0e-7
 #define ULPS 3
 
