@@ -1,11 +1,13 @@
 //------------------------------------------------------------
 
+// Instodução a Computação Científica
 // EP-O1 - SOLUÇÕES DE EQUAÇÕES NÃO-LINEARES
 // Programa feito po Sofia Wamser Lima, 14-19/08/2025
 
 //------------------------------------------------------------
-// Biclioteca com funções auxiliares: aplicação dos métodos
-// Bisseção e Newton-Raphson e cálculos de polinômios
+// labZero.h com funções auxiliares: aplicação dos métodos
+// Bisseção e Newton-Raphson e cálculos de polinômios ensinados
+
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
@@ -87,7 +89,7 @@ int main ()
   tempo = timestamp() - tempo;
   imprimir_solucoes(CALCULORAPIDO, BISSECCAO, raiz, erro, it, tempo);
   
-  tempo = timestamp();
+  tempo = timestamp(); // nan no exemplo 03
   erro = newtonRaphson(pol, x0, CRITERIOPARADA01, &it, &raiz, CALCULORAPIDO);
   tempo = timestamp() - tempo;
   imprimir_solucoes(CALCULORAPIDO, NEWTONRAPHSON, raiz, erro, it, tempo);
