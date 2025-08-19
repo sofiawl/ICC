@@ -1,3 +1,11 @@
+//------------------------------------------------------------
+
+// EP-O1 - SOLUÇÕES DE EQUAÇÕES NÃO-LINEARES
+// Programa feito po Sofia Wamser Lima, 14-19/08/2025
+
+//------------------------------------------------------------
+// Biclioteca com funções auxiliares: aplicação dos métodos
+// Bisseção e Newton-Raphson e cálculos de polinômios
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
@@ -16,7 +24,8 @@
 #define BISSECCAO 1
 #define NEWTONRAPHSON 2
 
-
+// Função auxiliar para imprimir dos dados
+// Imprime respectivamente: MÉTODO, RAIZ, ERRO, ITERAÇÕES, TEMPO
 void imprimir_solucoes(int velocidade, int metodo, real_t raiz, real_t erro, int it, real_t tempo){
     
     switch(metodo)
@@ -47,7 +56,7 @@ int main ()
   for (int i = pol.grau; i >=0; --i)
     scanf("%lf", &pol.p[i]);
 
-  scanf("%lf %lf", &a, &b); // intervalo onde está uma das raizes.
+  scanf("%lf %lf", &a, &b); 
 
   if (fesetround(FE_DOWNWARD) != 0) 
     printf("Falha ao setar arredondamento.\n");
@@ -55,6 +64,12 @@ int main ()
   real_t raiz, tempo, erro;
   int it = 0;
   real_t x0 = a + ((real_t)rand() / RAND_MAX) * (b - a);
+
+  // A raiz do polinômio é calculada utilizando os métodos: Bisseção e Newton-Raphson
+  // São aplicados três critérios de parada para cada método
+
+  //------------------------------------------------------------
+  // Execução com o método de cálculo de polinômio *mais* eficiente 
 
   printf("\nRAPIDO\n\n");
   tempo = timestamp();
@@ -87,6 +102,8 @@ int main ()
   tempo = timestamp() - tempo;
   imprimir_solucoes(CALCULORAPIDO, NEWTONRAPHSON, raiz, erro, it, tempo);
   
+  //------------------------------------------------------------
+  // Execução com o método de cálculo de polinômio *menos* eficiente
 
   printf("\n\nLENTO\n\n");
   tempo = timestamp();
