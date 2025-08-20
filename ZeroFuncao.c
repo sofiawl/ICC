@@ -49,7 +49,7 @@ real_t newtonRaphson (Polinomio p, real_t x0, int criterioParada, int *it, real_
                         calcPolinomio_rapido(p, x0, &fx_old, &dpx_old);
                         x_new = x0 - (fx_old / dpx_old);
                         calcPolinomio_rapido(p, x_new, &fx_new, &dpx_new);
-                        erro = fabs((fx_new - fx_old) / fx_new);
+                        erro = fabs((x_new - x0) / x_new);
                         x0 = x_new;
                         (*it)++;
                         if (*it >= MAXIT){
@@ -100,7 +100,7 @@ real_t newtonRaphson (Polinomio p, real_t x0, int criterioParada, int *it, real_
                         calcPolinomio_lento(p, x0, &fx_old, &dpx_old);
                         x_new = x0 - (fx_old / dpx_old);
                         calcPolinomio_lento(p, x_new, &fx_new, &dpx_new);
-                        erro = fabs((fx_new - fx_old) / fx_new);
+                        erro = fabs((x_new - x0) / x_new);
                         x0 = x_new;
                         (*it)++;
                         if (*it >= MAXIT){
