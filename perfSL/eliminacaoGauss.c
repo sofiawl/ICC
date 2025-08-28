@@ -11,20 +11,21 @@
 #include "eliminacaoGauss.h"
 
 // linha n coluna k 
-real_t encontraMax(SistLinear_t *C, int k, int n)
+int encontraMax(SistLinear_t *C, int k, int n)
 {
-  real_t max = C->A[n][k]; 
+  int max = n; 
   while(n--){
     if(C->A[n][k] > max) 
-      max = C->A[n][k];
+      max = n;
   }
 
-  return max;
+  return n;
 }
 
 // linhas k e p
 static void trocaLinha (SistLinear_t *C, int k, int p, int n)
 {
+  // Troca coeficientes das linhas
   real_t aux;
   for(int i = 1; i <= C->n; i++){
     aux = C->A[k][i];
@@ -32,6 +33,10 @@ static void trocaLinha (SistLinear_t *C, int k, int p, int n)
     C->A[p][i] = aux;
   }
 
+  // Troca termos independentes
+  aux = C->b[k];
+  C->b[k] = C->b[p];
+  C->b[p] = aux;
 }
 
 /* Seja um S.L. de ordem 'n'
@@ -40,14 +45,18 @@ static void trocaLinha (SistLinear_t *C, int k, int p, int n)
 void triangulariza( SistLinear_t *C )
 {
   for(int i = 1; i <= C->n; i++){
-    real_t pivo = 
-    encontraMax(C, );
-    if(){
-      
+    real_t pivo = encontraMax(C, i, C->n);
+    if(i != pivo){
+      trocaLinha(C, i, pivo, C->n);
     }
 
-    for(int j = 1; <= C->n; j++){
-
+    for(int k = i+1; k <= C->n; k++){
+      for(int j = i+1; j <= C->n; j++){
+          C->A[k][j] = C->A[k][j]* C->A[i][i] - C->A[i][j] * C->A[k][i];
+      
+      C->b[k] = C->b[k] * C->A[i][i] - C->b[i] * C->A[k][i];
+      C->A[k][i] = 0.0;
+      }
     }
   }
   
@@ -55,5 +64,11 @@ void triangulariza( SistLinear_t *C )
 
 void retrosubst( SistLinear_t *C, real_t *X )
 {
- 
+  real_t soma = 0;
+  for(int i = C->n; i >= 1; i--){
+    for(int j = C->n; j > i; j--){
+      soma += C->A[i][j] * X[j];
+    }
+    X[i] = (C->b[i] - soma) / C->A[i][i];
+  } 
 }
