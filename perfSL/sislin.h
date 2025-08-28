@@ -1,6 +1,8 @@
 #ifndef __SISLIN_H__
 #define __SISLIN_H__
 
+#include "utils.h"
+
 // Parâmetros default para teste de convergência
 #define MAXIT 50
 #define TOL  1.0e-4
