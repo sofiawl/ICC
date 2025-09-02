@@ -5,20 +5,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <fenv.h>
 
 #include "utils.h"
 #include "sislin.h"
 #include "eliminacaoGauss.h"
 
-// linha n coluna k 
+// tamanho n, coluna do pivo k
 int encontraMax(SistLinear_t *C, int k, int n)
 {
 
-  int max = n-1; 
-  while(n >= 0){
-    if(C->A[n][k] > max) 
-      max = n;
-  }
+  int max = k;
+  for(int i = k+1; i < n; i++){
+    if(C->A[i][k] > C->A[max][k]) 
+      max = i;
+  
+  }   
 
   return max;
 }
@@ -54,22 +56,25 @@ void triangulariza( SistLinear_t *C )
     for(int k = i+1; k < C->n; k++){
       for(int j = i+1; j < C->n; j++){
           C->A[k][j] = C->A[k][j]* C->A[i][i] - C->A[i][j] * C->A[k][i];
-      
-      C->b[k] = C->b[k] * C->A[i][i] - C->b[i] * C->A[k][i];
-      C->A[k][i] = 0.0;
+          fesetround(C->A[k][j]);
       }
+      C->b[k] = C->b[k] * C->A[i][i] - C->b[i] * C->A[k][i];
+      fesetround(C->b[k]);
+      C->A[k][i] = 0.0;
     }
   }
-  
-}
+}  
+
 
 void retrosubst( SistLinear_t *C, real_t *X )
 {
-  real_t soma = 0;
-  for(int i = C->n-1; i >= 1; i--){
+  for(int i = C->n-1; i >= 0; i--){
+    real_t soma = 0.0;
     for(int j = C->n-1; j > i; j--){
       soma += C->A[i][j] * X[j];
+      fesetround(soma);
     }
     X[i] = (C->b[i] - soma) / C->A[i][i];
+    fesetround(X[i]);
   } 
 }
