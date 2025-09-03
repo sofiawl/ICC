@@ -6,10 +6,8 @@ OBJS = utils.o sislin.o gaussSeidel.o eliminacaoGauss.o # acrescentar aqui outro
 CC     = gcc
 
 # Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID
-#CFLAGS="-I${LIKWID_HOME}/include -DLIKWID_PERFMON"
-#LFLAGS="-L${LIKWID_HOME}/lib -llikwid"
-CFLAGS = -O0
-LFLAGS = -lm 
+CFLAGS=-O0 -I${LIKWID_HOME}/include -DLIKWID_PERFMON
+LFLAGS=-L${LIKWID_HOME}/lib -llikwid -lm
 
 # Lista de arquivos para distribuição
 DISTFILES = *.c *.h LEIAME* Makefile

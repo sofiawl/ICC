@@ -30,11 +30,11 @@ int criterioSassenfeld(SistLinear_t *C){
     }
 
     if (bmax < 1.0){
-        printf("Matriz fornecida converge pelo critério de Sassenfeld\n\n");
+        printf("\nMatriz fornecida converge pelo critério de Sassenfeld\n\n");
         return 1;
     }
     else{
-        printf("Matriz fornecida não converge pelo critério de Sassenfeld\n\n");
+        printf("\nMatriz fornecida não converge pelo critério de Sassenfeld\n\n");
         return 0;
     }
 }

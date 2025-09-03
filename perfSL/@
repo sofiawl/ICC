@@ -8,27 +8,23 @@
 #include "gaussSeidel.h"
 
 int main(){
-		LIKWID_MARKER_INIT;
 
     SistLinear_t *mtx_eg = lerSisLin();
-		SistLinear_t *mtx_gs = dupSisLin(mtx_eg);
+		SistLinear_t *mtx_gs = mtx_eg;
     printf("MATRIZ ORIGINAL\n");
     prnSisLin(mtx_eg);
 
-		LIKWID_MARKER_START("Triangularizacao");
+
     triangulariza(mtx_eg);
-		LIKWID_MARKER_STOP("Triangularizacao");
-		printf("MATRIZ TRIANGULARIZADA\n");
+    printf("MATRIZ TRIANGULARIZADA\n");
     prnSisLin(mtx_eg);
-		
-		LIKWID_MARKER_START("Retrossubstituicao");
+
     retrosubst(mtx_eg, mtx_eg->b);
     //printf("MATRIZ DEPOIS DA RETROSUBSTITUIÇÃO\n");
     //prnSisLin(mtx_eg);
-		LIKWID_MARKER_STOP("Retrossubstituicao");
     printf("RESULTADO\n");
     prnVetor(mtx_eg->b, mtx_eg->n);
-		
+
 
     real_t *X = malloc(sizeof(real_t) * mtx_gs->n);
     if (!X) {return 1;}  
@@ -36,10 +32,8 @@ int main(){
         X[i] = 0.0;
     } 
 
-		LIKWID_MARKER_START("GaussSeidel");
     real_t norma;
     if (gaussSeidel(mtx_gs, X, DBL_EPSILON, 60, &norma)) {return 1;}
-		LIKWID_MARKER_STOP("GaussSeidel");
 
     printf("MATRIZ DEPOIS DE GAUSS-SEIDEL\n");
     prnSisLin(mtx_gs);
@@ -48,8 +42,5 @@ int main(){
 
 		liberaSisLin(mtx_eg);
 		liberaSisLin(mtx_gs);
-		free(X);
-
-		LIKWID_MARKER_CLOSE;
 		return 0;
 }

@@ -1,0 +1,13 @@
+Esse é o formato da execução com LIKWID:
+
+likwid-perfctr -C 0 -g FLOPS_DP -m ./perfSL < in/in4.dat
+
+Esses são os grupos de eventos mais comuns:
+
+FLOPS_DP	               FLOPS de ponto flutuante dupla precisão	                Medir desempenho de multiplicações/matrizes
+CACHE	                   Misses de cache L1/L2/L3	                                Diagnosticar problemas de memória
+MEM	                       Uso de memória e largura de banda	                    Testes de eficiência de acesso a arrays
+CPI	                       Ciclos por instrução	                                    Verificar se CPU está bem utilizada
+DATA	                   Leituras/escritas de memória	                            Diagnóstico de throughput
+
+-C fixa o programa em CPUs específicas, útil para evitar interferência de escalonamento do sistema.
