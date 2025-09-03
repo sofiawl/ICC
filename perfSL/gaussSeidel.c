@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <float.h>
 
 #include "utils.h"
 #include "sislin.h"
 #include "gaussSeidel.h"
+
+#define ZERO __FLT_EPSILON__
 
 int criterioSassenfeld(SistLinear_t *C){
 
@@ -27,11 +30,11 @@ int criterioSassenfeld(SistLinear_t *C){
     }
 
     if (bmax < 1.0){
-        printf("Matriz fornecida converge pelo critério de Sassenfeld\n");
+        printf("Matriz fornecida converge pelo critério de Sassenfeld\n\n");
         return 1;
     }
     else{
-        printf("Matriz fornecida não converge pelo critério de Sassenfeld\n");
+        printf("Matriz fornecida não converge pelo critério de Sassenfeld\n\n");
         return 0;
     }
 }
@@ -41,7 +44,17 @@ int gaussSeidel (SistLinear_t *C, real_t *X, real_t erro, int maxit, real_t *nor
 {
     if (!criterioSassenfeld(C)) {return 1;}
 
-    while(maxit && &&){
+    real_t *Xant = malloc(sizeof(real_t)*C->n);
+    if (!Xant) {return 1;}
+
+    real_t *R = malloc(sizeof(real_t)*C->n);
+    if (!R) {return 1;}
+
+    real_t res;
+
+    do {
+        for (int i = 0; i < C->n; i++) {Xant[i] = X[i];}
+
         for(int i = 0; i < C->n; i++){
             X[i] = C->b[i];
             for(int j = 0; j <= i-1; j++){
@@ -55,8 +68,15 @@ int gaussSeidel (SistLinear_t *C, real_t *X, real_t erro, int maxit, real_t *nor
         }
 
         maxit--;
-    }
+        *norma = normaMax(X, Xant, C->n);
 
+        residuo(C, X, R, C->n);
+        res = normaL2(R, C->n);
+
+    } while(maxit && (*norma > erro) && (res > erro));
+
+    free(Xant);
+    free(R);
     return 0;
 }
 
