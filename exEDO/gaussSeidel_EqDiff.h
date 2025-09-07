@@ -1,6 +1,8 @@
 #ifndef __GAUSSEIDEL_EQ_DIF__
 #define __GAUSSEIDEL_EQ_DIF__
 
+#include "edo.h"
+
 Tridiag *genTridiag (EDo *edoeq);
 rtime_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int maxiter);
 real_t normaL2_3Diag (Tridiag *sl, real_t *Y);
