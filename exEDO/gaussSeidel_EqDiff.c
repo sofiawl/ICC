@@ -155,12 +155,12 @@ real_t normaL2_EDO (EDo *edoeq, real_t *Y)
 
   for(int i=1; i < edoeq->n-1; ++i) {
     xi += h; 
-    aux = b*edoeq->r(xi) - sl->Di[i]*Y[i-1] - sl->D[i]*Y[i] - sl->Ds[i]*Y[i+1];
+    aux = b*edoeq->r(xi) - di*Y[i-1] - d*Y[i] - ds*Y[i+1];
     res += aux*aux;
   }
 
   xi += h;
-  aux = sl->B[sl->n-1] - sl->Di[sl->n-2]*Y[sl->n-2] - sl->D[sl->n-1]*Y[sl->n-1]; 
+  aux = b*edoeq->r(xi) - di*Y[edoeq->n-2] - d*Y[edoeq->n-1]; 
   res = aux*aux;
 
 
