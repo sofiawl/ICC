@@ -4,6 +4,7 @@
 typedef double real_t;
 
 #define FORMAT "%23.15e"
+#define ERRO 1e-5
 
 // Sistema linear Tri-diagonal
 typedef struct {
@@ -24,6 +25,8 @@ typedef struct {
 Tridiag *genTridiag (EDo *edoeq);
 void prnEDOsl (EDo *edoeq);
 void prnVetor (real_t *v, unsigned int n);
+real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter);
+real_t normaL2_EDO (EDo *edoeq, real_t *Y);
 
 #endif // __EQDIFF_H__
 

@@ -1,6 +1,41 @@
-TARGET = AS
-SOURCES = AggressiveSquares.c Square.c Joystick.c Bullet.c Pistol.c
-ALLEGRO_FLAGS = $(shell pkg-config allegro-5 allegro_main-5 allegro_font-5 allegro_primitives-5 --libs --cflags)
+# PROGRAMA
+PROG = resolveEDO
+OBJS = utils.o edo.o
+VERIF = verificaEP02
+CC     = gcc
 
-all:
-	gcc $(SOURCES) -o $(TARGET) $(ALLEGRO_FLAGS)
+# Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID
+CFLAGS=-O0 -I${LIKWID_HOME}/include -DLIKWID_PERFMON 
+#LFLAGS=-L${LIKWID_HOME}/lib -llikwid -lm
+LFLAGS= -lm
+ 
+# Lista de arquivos para distribuição
+DISTFILES = *.c *.h LEIAME* Makefile
+DISTDIR = ${USER}
+
+.PHONY: all clean purge dist
+
+%.o: %.c %.h
+	$(CC) -c $(CFLAGS) -o $@ $<
+all: $(PROG)
+
+$(PROG): % : %.o $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+
+clean:
+	@echo "Limpando sujeira ..."
+	@rm -f *~ *.bak
+
+purge:  clean
+	@echo "Limpando tudo ..."
+	@rm -f $(PROG) *.o core a.out $(DISTDIR) $(DISTDIR).tar
+
+testeFormato: $(PROG) $(VERIF)
+	@cat teste.dat | ./$(PROG) | ./$(VERIF)
+
+dist: purge
+	@echo "Gerando arquivo de distribuição ($(DISTDIR).tar) ..."
+	@ln -s . $(DISTDIR)
+	@tar -chzvf $(DISTDIR).tgz $(addprefix ./$(DISTDIR)/, $(DISTFILES))
+	@rm -f $(DISTDIR)
+

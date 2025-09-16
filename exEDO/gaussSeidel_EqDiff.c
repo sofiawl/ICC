@@ -139,7 +139,7 @@ real_t normaL2_EDO (EDo *edoeq, real_t *Y)
 
   h = (edoeq->b-edoeq->a)/(n+1);
   ds = 2 + h;
-  d = 2*h*h;
+  d = 2*h*h - 4;
   di = 2 - h;
   b = 2*h*h;
 
