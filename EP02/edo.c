@@ -52,16 +52,16 @@ void prnEDOsl (EDo *edoeq)
     x = edoeq->a + (i+1)*h;
     rx = edoeq->r1*x + edoeq->r2*x*x + edoeq->r3*cos(x) + edoeq->r4*exp(x);
     
-    /*b = h*h * rx; 
+    b = h*h * rx; 
     di = 1 - h * edoeq->p/2.0;
     d = -2 + h*h * edoeq->q;
     ds = 1 + h * edoeq->p/2.0;
-    */
-    ds = 2.0 + h*edoeq->p;
+    
+    /*ds = 2.0 + h*edoeq->p;
     d = 2.0*h*h*edoeq->q - 4.0;
     di = 2.0 - h*edoeq->p;
     b = 2.0*h*h * rx;
-
+    */
     for (j=0; j < n; ++j) {
       if (i == j)
 	printf (FORMAT,d);
@@ -102,10 +102,16 @@ real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter)
 
     h = (edoeq->b - edoeq->a) / (n+1);
     fesetround(h);
-    ds = 2.0 + h*edoeq->p;
+    /*ds = 2.0 + h*edoeq->p;
     d = 2.0*h*h*edoeq->q - 4.0;
     di = 2.0 - h*edoeq->p;
     b = 2.0*h*h;
+    */
+    b = h*h; 
+    di = 1 - h * edoeq->p/2.0;
+    d = -2 + h*h * edoeq->q;
+    ds = 1 + h * edoeq->p/2.0;
+    
     fesetround(ds); fesetround(d); fesetround(di); fesetround(b);
 
     real_t normaL2 = normaL2_EDO(edoeq, Y);
@@ -116,8 +122,8 @@ real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter)
         real_t yi = edoeq->a + h;
         real_t r = edoeq->r1*yi + edoeq->r2*yi*yi + edoeq->r3*cos(yi) + edoeq->r4*exp(yi);
         // dúvida da formula di ou ds?
-        Y[0] = (b*r - di*Y[1]) / d;
-        printf("b: %fl r: %fl d: %fl Y0: %fl\n", b, r, d, Y[0]);
+        Y[0] = (b*r - ds*Y[1]) / d;
+        //printf("b: %fl r: %fl d: %fl Y0: %fl\n", b, r, d, Y[0]);
         fesetround(Y[0]);
 
         for(int i = 1; i < edoeq->n-2; i++){
@@ -130,11 +136,11 @@ real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter)
         yi += h; 
         r = edoeq->r1*yi + edoeq->r2*yi*yi + edoeq->r3*cos(yi) + edoeq->r4*exp(yi);
         // dúvida da formula di ou ds?
-        Y[edoeq->n-1] = (d*r - ds*Y[edoeq->n-2]) / d;
+        Y[edoeq->n-1] = (d*r - di*Y[edoeq->n-2]) / d;
         fesetround(Y[edoeq->n-1]);
 
-        prnVetor(Y, edoeq->n);
-        printf("\n");
+        //prnVetor(Y, edoeq->n);
+        //printf("\n");
         normaL2 = normaL2_EDO(edoeq, Y);
         
     }
@@ -156,10 +162,17 @@ real_t normaL2_EDO (EDo *edoeq, real_t *Y)
 
   h = (edoeq->b-edoeq->a)/(n+1);
   fesetround(h);
-  ds = 2.0 + h*edoeq->p;
+  /*ds = 2.0 + h*edoeq->p;
   d = 2.0*h*h*edoeq->q - 4.0;
   di = 2.0 - h*edoeq->p;
   b = 2.0*h*h;
+  */
+ 
+  b = h*h; 
+  di = 1 - h * edoeq->p/2.0;
+  d = -2 + h*h * edoeq->q;
+  ds = 1 + h * edoeq->p/2.0;
+    
   fesetround(ds); fesetround(d); fesetround(di); fesetround(b);
 
   //resíduo + norma L2
@@ -170,7 +183,7 @@ real_t normaL2_EDO (EDo *edoeq, real_t *Y)
   fesetround(r);
 
   // dúvida da formula di ou ds?
-  aux = b*r - d*Y[0] - di*Y[1];
+  aux = b*r - d*Y[0] - ds*Y[1];
   fesetround(aux);
   res = aux*aux; 
 
@@ -185,7 +198,7 @@ real_t normaL2_EDO (EDo *edoeq, real_t *Y)
   yi += h;
   r = edoeq->r1*yi + edoeq->r2*yi*yi + edoeq->r3*cos(yi) + edoeq->r4*exp(yi);
   // dúvida da formula di ou ds?
-  aux = b*r - ds*Y[edoeq->n-2] - d*Y[edoeq->n-1]; 
+  aux = b*r - di*Y[edoeq->n-2] - d*Y[edoeq->n-1]; 
   fesetround(aux);
   res += aux*aux;
 

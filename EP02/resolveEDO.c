@@ -48,7 +48,7 @@ int main(){
         tTotal = timestamp() - tTotal;
 
         //ordem do sistema, matriz aumentada
-        prnEDOsl(&edo);
+        //prnEDOsl(&edo);
 
         //solução
         printf("\n");
