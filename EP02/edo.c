@@ -106,7 +106,7 @@ real_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter)
   { 
     Y[0] = (sl->B[0] - sl->Ds[0]*Y[1])/ sl->Di[0];
 
-    for(int i = 1; i < sl->n-2; i++)
+    for(int i = 1; i < sl->n-1; i++)
       Y[i] = (sl->B[i] - sl->Di[i-1]*Y[i-1] - sl->Ds[i]*Y[i+1]) / sl->D[i];
 
     Y[sl->n-1] = (sl->B[sl->n-1] - sl->Di[sl->n-2]*Y[sl->n-2]) / sl->D[sl->n-1];
@@ -125,31 +125,26 @@ real_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter)
 // independentes do SL
 real_t normaL2_3Diag (Tridiag *sl, real_t *Y)
 {
-  int n = sl->n;
-  real_t normaL2;
+    int n = sl->n;
+    if (n <= 0) return -1.0;
 
-  normaL2 = 0.0;
+    real_t soma = 0.0;
 
-  //1: resíduo
-  real_t *R = malloc(sizeof(real_t) * sl->n);
-  if (!R) return -1;
-
-
-  R[0] = sl->B[0] - sl->D[0]*Y[0] - sl->Ds[0]*Y[1];
-
-  for(int i=1; i < sl->n-1; ++i) {
-    R[i] = sl->B[i] - sl->Di[i]*Y[i-1] - sl->D[i]*Y[i] - sl->Ds[i]*Y[i+1];
-  }
-
-  R[sl->n-1] = sl->B[sl->n-1] - sl->Di[sl->n-2]*Y[sl->n-2] - sl->D[sl->n-1]*Y[sl->n-1]; 
-
-  //2: norma L2
-  for(int i = 0; i < sl->n; i++){
-    normaL2 += R[i]*R[i];
-  }
   
-  free(R);
-  return sqrt(normaL2);
+    real_t r0 = sl->B[0] - sl->D[0]*Y[0] - (n>1 ? sl->Ds[0]*Y[1] : 0.0);
+    soma += r0 * r0;
+
+    for (int i = 1; i < n-1; ++i) {
+        real_t ri = sl->B[i] - sl->Di[i-1]*Y[i-1] - sl->D[i]*Y[i] - sl->Ds[i]*Y[i+1];
+        soma += ri * ri;
+    }
+
+    if (n > 1) {
+        real_t rn = sl->B[n-1] - sl->Di[n-2]*Y[n-2] - sl->D[n-1]*Y[n-1];
+        soma += rn * rn;
+    }
+
+    return sqrt(soma);
 }
 
 // algoritmo Gauss-Seidel usando parâmetros EDO, sem usar vetores para
@@ -185,7 +180,7 @@ real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter)
         //printf("b: %fl r: %fl d: %fl Y0: %fl\n", b, r, d, Y[0]);
         fesetround(Y[0]);
 
-        for(int i = 1; i < edoeq->n-2; i++){
+        for(int i = 1; i < edoeq->n-1; i++){
             yi += h;
             r = edoeq->r1*yi + edoeq->r2*yi*yi + edoeq->r3*cos(yi) + edoeq->r4*exp(yi);
             Y[i] = (b*r - di*Y[i-1] - ds*Y[i+1]) / d;

@@ -5,6 +5,8 @@ typedef double real_t;
 
 #define FORMAT "%23.15e"
 #define ERRO 1e-5
+#define MAXIT 100
+
 
 // Sistema linear Tri-diagonal
 typedef struct {

@@ -8,7 +8,6 @@
 #include "edo.h"
 #include "utils.h"
 
-#define MAXIT 100
 
 int main(){
     //LIKWID_MARKER_INIT;
