@@ -56,8 +56,8 @@ void prnEDOsl (EDo *edoeq)
     di = 1 - h * edoeq->p/2.0;
     d = -2 + h*h * edoeq->q;
     ds = 1 + h * edoeq->p/2.0;
-    
-    /*ds = 2.0 + h*edoeq->p;
+    /*
+    ds = 2.0 + h*edoeq->p;
     d = 2.0*h*h*edoeq->q - 4.0;
     di = 2.0 - h*edoeq->p;
     b = 2.0*h*h * rx;
@@ -88,9 +88,68 @@ void prnEDOsl (EDo *edoeq)
 void prnVetor (real_t *v, unsigned int n)
 {
   printf (" ");
-  for(int i=0; i < n; ++i)
+  for(unsigned int i=0; i < n; ++i)
       printf (FORMAT, v[i]);
   printf ("\n");
+}
+
+
+real_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter)
+{
+  
+  // algoritmo  Gauss-Seidel   com  vetores   das  diagonais   e  termos
+  // independentes do SL
+  real_t normaL2 = normaL2_3Diag(sl, Y);
+
+  unsigned int k = 1;
+  while(k < *maxiter && normaL2 > ERRO)
+  { 
+    Y[0] = (sl->B[0] - sl->Ds[0]*Y[1])/ sl->Di[0];
+
+    for(int i = 1; i < sl->n-2; i++)
+      Y[i] = (sl->B[i] - sl->Di[i-1]*Y[i-1] - sl->Ds[i]*Y[i+1]) / sl->D[i];
+
+    Y[sl->n-1] = (sl->B[sl->n-1] - sl->Di[sl->n-2]*Y[sl->n-2]) / sl->D[sl->n-1];
+
+    k++;
+    normaL2 = normaL2_3Diag(sl, Y);
+  }
+
+  *maxiter = k;  
+
+  return normaL2;
+}
+
+
+// algoritmo para calcular Norma L2 com  vetores   das  diagonais   e  termos
+// independentes do SL
+real_t normaL2_3Diag (Tridiag *sl, real_t *Y)
+{
+  int n = sl->n;
+  real_t normaL2;
+
+  normaL2 = 0.0;
+
+  //1: resíduo
+  real_t *R = malloc(sizeof(real_t) * sl->n);
+  if (!R) return -1;
+
+
+  R[0] = sl->B[0] - sl->D[0]*Y[0] - sl->Ds[0]*Y[1];
+
+  for(int i=1; i < sl->n-1; ++i) {
+    R[i] = sl->B[i] - sl->Di[i]*Y[i-1] - sl->D[i]*Y[i] - sl->Ds[i]*Y[i+1];
+  }
+
+  R[sl->n-1] = sl->B[sl->n-1] - sl->Di[sl->n-2]*Y[sl->n-2] - sl->D[sl->n-1]*Y[sl->n-1]; 
+
+  //2: norma L2
+  for(int i = 0; i < sl->n; i++){
+    normaL2 += R[i]*R[i];
+  }
+  
+  free(R);
+  return sqrt(normaL2);
 }
 
 // algoritmo Gauss-Seidel usando parâmetros EDO, sem usar vetores para
@@ -116,7 +175,7 @@ real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter)
 
     real_t normaL2 = normaL2_EDO(edoeq, Y);
 
-    int k = 1;
+    unsigned int k = 1;
     for (; k < *maxiter && normaL2 > ERRO; k++)
     {
         real_t yi = edoeq->a + h;

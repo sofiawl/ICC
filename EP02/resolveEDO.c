@@ -13,6 +13,7 @@
 int main(){
     //LIKWID_MARKER_INIT;
     EDo edo;
+    Tridiag *sl = malloc(sizeof(Tridiag));
 
     //1ª linha: quantidade de pontos da malha da EDO;
     scanf("%d", &edo.n);
@@ -39,20 +40,21 @@ int main(){
     {
         memset(Y, 0, sizeof(real_t) * edo.n);
 
+        unsigned int iter = MAXIT;
+        sl = genTridiag(&edo);
+    
         real_t tTotal = timestamp();
         //LIKWID_MARKER_START("Triangularizacao");
-        unsigned int iter = MAXIT;
-        real_t normaL2 = gaussSeidel_EDO(&edo, Y, &iter);
-
+        real_t normaL2 = gaussSeidel_3Diag(sl, Y, &iter);
 	    //LIKWID_MARKER_STOP("Triangularizacao");
         tTotal = timestamp() - tTotal;
 
         //ordem do sistema, matriz aumentada
-        //prnEDOsl(&edo);
+        prnEDOsl(&edo);
 
         //solução
         printf("\n");
-        prnVetor(Y, edo.n);
+        prnVetor(Y, sl->n);
 
         //quantidade de iterações
         //norma L2
@@ -63,6 +65,7 @@ int main(){
     }
 	
     free(Y);
+    free(sl);
 	//LIKWID_MARKER_CLOSE;
     return 0;
 }

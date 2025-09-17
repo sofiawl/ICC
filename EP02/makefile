@@ -5,7 +5,7 @@ VERIF = verificaEP02
 CC     = gcc
 
 # Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID
-CFLAGS=-O0 -I${LIKWID_HOME}/include -DLIKWID_PERFMON 
+CFLAGS=-O0 -Wextra -I${LIKWID_HOME}/include -DLIKWID_PERFMON 
 #LFLAGS=-L${LIKWID_HOME}/lib -llikwid -lm
 LFLAGS= -lm
  
