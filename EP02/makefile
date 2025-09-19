@@ -1,14 +1,18 @@
-# PROGRAMA
-PROG = resolveEDO
-OBJS = utils.o edo.o
-VERIF = verificaEP02
-CC     = gcc
+# Caminho base do LIKWID
+LIKWID_HOME=/home/soft/likwid
+LIKWID_INCLUDE=${LIKWID_HOME}/include
+LIKWID_LIB=${LIKWID_HOME}/lib
 
-# Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID
-CFLAGS=-O0 -Wextra -I${LIKWID_HOME}/include -DLIKWID_PERFMON 
-#LFLAGS=-L${LIKWID_HOME}/lib -llikwid -lm
-LFLAGS= -lm
- 
+# PROGRAMA
+PROG=resolveEDO
+OBJS=utils.o edo.o
+VERIF=verificaEP02
+CC=gcc
+
+# Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID 
+CFLAGS=-O0 -Wextra -DLIKWID_PERFMON -I${LIKWID_INCLUDE}
+LFLAGS=-L${LIKWID_LIB} -llikwid -lm
+
 # Lista de arquivos para distribuição
 DISTFILES = *.c *.h LEIAME* Makefile
 DISTDIR = ${USER}

@@ -1,12 +1,11 @@
 #ifndef __EQDIFF_H__
 #define __EQDIFF_H__
 
-typedef double real_t;
+#include "utils.h"
 
 #define FORMAT "%23.15e"
 #define ERRO 1e-5
 #define MAXIT 100
-
 
 // Sistema linear Tri-diagonal
 typedef struct {
@@ -27,9 +26,9 @@ typedef struct {
 Tridiag *genTridiag (EDo *edoeq);
 void prnEDOsl (EDo *edoeq);
 void prnVetor (real_t *v, unsigned int n);
-real_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter);
+rtime_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter, real_t *normaL2);
 real_t normaL2_3Diag (Tridiag *sl, real_t *Y);
-real_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter);
+rtime_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter, real_t *normaL2);
 real_t normaL2_EDO (EDo *edoeq, real_t *Y);
 
 #endif // __EQDIFF_H__

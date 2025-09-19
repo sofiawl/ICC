@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <likwid.h>
+#include <likwid.h>
 #include <float.h>
 #include <sys/time.h>
 #include <math.h>
@@ -10,9 +10,10 @@
 
 
 int main(){
-    //LIKWID_MARKER_INIT;
+    LIKWID_MARKER_INIT;
     EDo edo;
     Tridiag *sl = malloc(sizeof(Tridiag));
+    if (!sl) return 1; 
 
     //1ª linha: quantidade de pontos da malha da EDO;
     scanf("%d", &edo.n);
@@ -32,7 +33,7 @@ int main(){
     real_t *Y = malloc(sizeof(real_t) * edo.n);
     if(!Y) return 1;
 
-
+    real_t normaL2 = 0.0;
     //5ª linha em diante: uma ou mais linhas contendo os coeficientes r1, r2, r3  e r4 da definição da função r(x),
     //representando diversas  EDO's que diferem apenas no valor de r(x).
     while(scanf("%lf %lf %lf %lf", &edo.r1, &edo.r2, &edo.r3, &edo.r4) == 4)
@@ -42,29 +43,22 @@ int main(){
         unsigned int iter = MAXIT;
         sl = genTridiag(&edo);
     
-        real_t tTotal = timestamp();
-        //LIKWID_MARKER_START("Triangularizacao");
-        real_t normaL2 = gaussSeidel_3Diag(sl, Y, &iter);
-	    //LIKWID_MARKER_STOP("Triangularizacao");
-        tTotal = timestamp() - tTotal;
+        LIKWID_MARKER_START("GS3D");
+        rtime_t time = gaussSeidel_3Diag(sl, Y, &iter, &normaL2);
+		    LIKWID_MARKER_STOP("GS3D");
 
-        //ordem do sistema, matriz aumentada
         prnEDOsl(&edo);
 
-        //solução
         printf("\n");
         prnVetor(Y, sl->n);
 
-        //quantidade de iterações
-        //norma L2
-        //tempo em miliseg
         printf("%d\n", iter);
         printf("%23.15e\n", normaL2);
-        printf("%16.8e\n", tTotal);
+        printf("%16.8e\n", time);
     }
 	
     free(Y);
     free(sl);
-	//LIKWID_MARKER_CLOSE;
+		LIKWID_MARKER_CLOSE;
     return 0;
 }
