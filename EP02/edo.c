@@ -104,7 +104,7 @@ rtime_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter, real_t
 
   unsigned int k = 0;
   do { 
-    // Primeiro valor do vetor
+    
     Y[0] = (sl->B[0] - sl->Ds[0]*Y[1])/ sl->D[0];
 
     for(int i = 1; i < sl->n-1; i++)
