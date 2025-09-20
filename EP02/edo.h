@@ -1,3 +1,8 @@
+/*-------------------------------------------------------------
+									SOFIA WAMSER LIMA 
+										GRR: 20240495
+											20/09/2025
+---------------------------------------------------------------*/
 #ifndef __EQDIFF_H__
 #define __EQDIFF_H__
 
@@ -22,14 +27,12 @@ typedef struct {
 } EDo;
 
 // Funções auxiliares
-
 Tridiag *genTridiag (EDo *edoeq);
 void prnEDOsl (EDo *edoeq);
 void prnVetor (real_t *v, unsigned int n);
+// Funções para cálcula do matriz Tridiagonal e norma L2
 rtime_t gaussSeidel_3Diag (Tridiag *sl, real_t *Y, unsigned int *maxiter, real_t *normaL2);
 real_t normaL2_3Diag (Tridiag *sl, real_t *Y);
-rtime_t gaussSeidel_EDO (EDo *edoeq, real_t *Y, unsigned int *maxiter, real_t *normaL2);
-real_t normaL2_EDO (EDo *edoeq, real_t *Y);
 
 #endif // __EQDIFF_H__
 

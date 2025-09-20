@@ -10,7 +10,7 @@ VERIF=verificaEP02
 CC=gcc
 
 # Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID 
-CFLAGS=-O0 -Wextra -DLIKWID_PERFMON -I${LIKWID_INCLUDE}
+CFLAGS=-O0 -DLIKWID_PERFMON -I${LIKWID_INCLUDE}
 LFLAGS=-L${LIKWID_LIB} -llikwid -lm
 
 # Lista de arquivos para distribuição

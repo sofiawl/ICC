@@ -1,3 +1,10 @@
+/*-------------------------------------------------------------
+									SOFIA WAMSER LIMA 
+										GRR: 20240495
+											20/09/2025
+---------------------------------------------------------------*/
+// Cógido feito para a disciplina de Introdução a Teoria da Computação
+// Prof. Armando
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

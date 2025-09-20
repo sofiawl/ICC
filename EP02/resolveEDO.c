@@ -1,3 +1,8 @@
+/*-------------------------------------------------------------
+									SOFIA WAMSER LIMA 
+										GRR: 20240495
+											20/09/2025
+---------------------------------------------------------------*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -60,5 +65,6 @@ int main(){
     free(Y);
     free(sl);
 		LIKWID_MARKER_CLOSE;
-    return 0;
+ 
+   return 0;
 }
