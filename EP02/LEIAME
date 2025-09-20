@@ -3,5 +3,27 @@
 #                    GRR: 20240495
 #                     20/09/2025
 # -------------------------------------------------------------
-
+#
+# Trabalho EP-02 – Sistemas Lineares
+# Implementa solução de uma família de EDO's usando o Método de Gauss-Seidel,
+# exibindo matriz aumentada, solução, norma L2 do resíduo, iterações e tempo.
+#
+# -------------------------------------------------------------
+# Como rodar o script:
+#
+# ./script.sh arquivo_de_entrada.dat
+#
+# -------------------------------------------------------------
+# Dificuldade encontrada:
+#
+# O contador FP_ARITH_INST_RETIRED_SCALAR_DOUBLE existe apenas em CPUs Intel.
+# Quando tentei rodar usando somente o comando da Intel (por ssh na cpu1 e cpu2 e pessoalmente nos pcs do Dinf)
+# não obtive a saída esperada como no exemplo do professor.
+# Em CPUs AMD, esse contador não existe, então resolvi usar o comando genérico:
+#
+# grep 'FLOPS' out.dat | grep '|' | awk -F '|' 'NF>=4 {gsub(/ /,""); print $2, $4}'
+#
+# Assim, o script funciona em ambas arquiteturas e captura os eventos de FLOPS relevantes.
+# Se quiser ver a saída completa detalhada, consulte o arquivo out.dat.
+# -------------------------------------------------------------
 
