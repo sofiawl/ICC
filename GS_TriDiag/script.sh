@@ -10,7 +10,7 @@
 
 echo ""
 
-likwid-perfctr -C 0 -g FLOPS_DP -m ./resolveEDO < "$1" > out.dat 2>&1
+likwid-perfctr -C 3 -g FLOPS_DP -m ./resolveEDO < "$1" > out.dat 2>&1
 
 
 # Eu usei grep 'FLOPS'... porque o contador FP_ARITH_INST_RETIRED_SCALAR_DOUBLE

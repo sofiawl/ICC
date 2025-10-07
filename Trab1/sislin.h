@@ -10,10 +10,11 @@
 #include "sislin.h"
 
 void criaKDiagonal(int n, int k, double **A, double **B);
-void genSimetricaPositiva(double *A, double *b, int n, int k, double **ASP, double **bsp, double *tempo);
+void prnKDiagonal(int n, int k, double *A, double *B);
+void genSimetricaPositiva(double *A, double *b, int n, int k, double *ASP, double *bsp, double *tempo);
 void geraDLU (double *A, int n, int k, double **D, double **L, double **U, double *tempo);
-void geraPreCond(double *D, double *L, double *U, double w, int n, int k, double **M, double *tempo);
-double calcResiduoSL (double *A, double *b, double *X, int n, int k, double *tempo);
+void calcResiduoSL (double *A, double *b, double *X, double *r, int n, int k, double *tempo);
+void destroiKDiagonal(int n, int k, real_t *A, real_t *B);
 
 #endif // __SISLIN_H__
 

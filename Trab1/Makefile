@@ -1,36 +1,41 @@
-# PROGRAMA
-PROG = resolveEDO
-OBJS = utils.o sislin.o gaussSeidelEDO.o
+CC = gcc
 
-CC     = gcc
+CFLAGS = -O0 #-Wextra -Wall
+LFLAGS = -lm
 
-# Acrescentar onde apropriado as opções para incluir uso da biblioteca LIKWID
-CFLAGS=-O0 -I${LIKWID_HOME}/include -DLIKWID_PERFMON
-LFLAGS=-L${LIKWID_HOME}/lib -llikwid -lm
+PROG = cgSolver
+MODULES = utils \
+          pcgc \
+          sislin \
+          $(PROG)
+
+OBJS = $(addsuffix .o,$(MODULES))
 
 # Lista de arquivos para distribuição
-DISTFILES = *.c *.h LEIAME* Makefile
-DISTDIR = ${USER}
+DISTFILES = *.c *.h Makefile LEIAME
+DISTDIR = 20240495-login2
 
-.PHONY: all clean purge dist
+.PHONY: clean purge dist all
 
-%.o: %.c %.h
-	$(CC) -c $(CFLAGS) -o $@ $<
-all: $(PROG)
+%.o: %.c
+	$(CC) -c $(CFLAGS) $<
 
-$(PROG): % : %.o $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
+$(PROG): $(OBJS)
+	$(CC) -o $@ $^ $(LFLAGS)
+
+debug: CFLAGS+=-D__DEBUG__
+debug: $(PROG)
 
 clean:
-	@echo "Limpando sujeira ..."
-	@rm -f *~ *.bak
+	@echo "Limpando sujeira ....."
+	@rm -rf core *~ *.bak
 
-purge:  clean
-	@echo "Limpando tudo ..."
-	@rm -f $(PROG) *.o core a.out $(DISTDIR) $(DISTDIR).tar
+purge: clean
+	@echo "Fazendo a faxina ....."
+	@rm -f a.out *.o $(PROG)
 
 dist: purge
-	@echo "Gerando arquivo de distribuição ($(DISTDIR).tar) ..."
+	@echo "Gerando arquivo de distribuição ($(DISTDIR).tgz) ..."
 	@ln -s . $(DISTDIR)
 	@tar -chzvf $(DISTDIR).tgz $(addprefix ./$(DISTDIR)/, $(DISTFILES))
 	@rm -f $(DISTDIR)
