@@ -29,6 +29,7 @@ static void usage(char *progname)
 
 int main (int argc, char *argv[]) 
 {
+  LIKWID_MARKER_INIT;
   int n=DEF_SIZE;
   
   MatRow mRow_1, mRow_2, resMat, resMat_otm;
@@ -72,13 +73,21 @@ int main (int argc, char *argv[])
     printf ("=================================\n\n");
 #endif /* _DEBUG_ */
 
+  LIKWID_MARKER_START("MatVet");
   multMatVet (mRow_1, vet, n, n, res);
-    
-  multMatMat (mRow_1, mRow_2, n, resMat);
+  LIKWID_MARKER_STOP("MatVet");
 
+  LIKWID_MARKER_START("MatMat");
+  multMatMat (mRow_1, mRow_2, n, resMat);
+  LIKWID_MARKER_STOP("MatMat");
+
+  LIKWID_MARKER_START("MatVet_Otm");
   multMatVet_otm (mRow_1, vet, n, n, res_otm);
-    
+  LIKWID_MARKER_STOP("MatVet_Otm");
+
+  LIKWID_MARKER_START("MatMat_Otm");
   multMatMat_otm (mRow_1, mRow_2, n, resMat_otm);
+  LIKWID_MARKER_STOP("MatMat_Otm");
     
 #ifdef _DEBUG_
     prnVetor (res, n);
@@ -94,6 +103,8 @@ int main (int argc, char *argv[])
   liberaVetor ((void*) res);
   liberaVetor ((void*) resMat_otm);
   liberaVetor ((void*) res_otm);
+  
+  LIKWID_MARKER_CLOSE;
 
   return 0;
 }

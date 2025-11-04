@@ -8,7 +8,7 @@
 
     Forma de uso:
  
-    double tempo;
+    rtime_t tempo;
     tempo = timestamp();
     <trecho de programa do qual se deseja medir tempo>
     tempo = timestamp() - tempo;
@@ -38,3 +38,35 @@ string_t markerName(string_t baseName, int n)
 
 }
 
+/*
+// Retorna TRUE se 'n' é uma potência de 2
+// [OBSOLETO] 
+// Definida macro em 'utils.h' para substituir esta função
+//
+int isPot2(int n)
+{
+  int k;
+  return (k = log2(n)) == log2(n) ;
+}
+*/
+
+
+/*  Retorna tempo em milisegundos desde EPOCH
+
+    Forma de uso:
+ 
+    rtime_t tempo;
+    tempo = timestamp();
+    <trecho de programa do qual se deseja medir tempo>
+    tempo = timestamp() - tempo;
+*/
+
+/*  
+rtime_t timestamp(void)
+{
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  return ( (rtime_t) tp.tv_sec*1.0e3 + (rtime_t) tp.tv_usec*1.0e-3 );
+}
+
+*/

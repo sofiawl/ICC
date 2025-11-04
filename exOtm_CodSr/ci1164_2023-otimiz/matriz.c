@@ -42,6 +42,9 @@ static inline real_t generateRandomB( )
  *  @return  ponteiro para a matriz gerada
  *
  */
+inline int idx(int i, int n, int j){
+  return i*n+j;
+}
 
 MatRow geraMatRow (int m, int n, int zerar)
 {
@@ -111,24 +114,41 @@ void liberaVetor (void *vet)
 
 void multMatVet (MatRow mat, Vetor v, int m, int n, Vetor res)
 {
-    
-  /* Efetua a multiplicação */
-  if (res) {
-    for (int i=0; i < m; ++i)
-      for (int j=0; j < n; ++j)
-        res[i] += mat[n*i + j] * v[j];
-  }
-}
-
-void multMatVet_otim (MatRow mat, Vetor v, int m, int n, Vetor res)
-{
-    
   /* Efetua a multiplicação */
   if (res) {
     for (int i=0; i < m; ++i)
       for (int j=0; j < n; ++j)
         res[i] += mat[n*i + j] * v[j];
     }
+}
+
+
+// Unroll and Jam
+void multMatVet_otim (MatRow mat, Vetor v, int m, int n, Vetor res)
+{ 
+  int k = 4;
+
+  /* Efetua a multiplicação */
+  if (res) {
+    for (int i=0; i < m-m%k; i+=k)
+      for (int j=0; j < n; ++j)
+      {
+        res[i] += mat[idx(i, n, j)] * v[j];
+        res[i] += mat[idx(i+k-3, n, j)] * v[j];
+        res[i] += mat[idx((i+k-2), n, j)] * v[j];         
+        res[i] += mat[idx((i+k-1), n, j)] * v[j];         
+      }
+
+    // Qual é o melhor k, considerando que devo deixar sobrar menos resíduo possível
+    //ex: se n=17, 4, 4, 4, 4, 4, 4 loops unrolls e o resto será 1 e o jam só rodará uma vez
+    for(int i=m-m%k; i < m; ++i)
+      for(int j=0; j < n; ++j)
+      {
+        res[i] += mat[idx(i, n, j)] * v[j];
+      }
+  }
+
+
 }
 
 
@@ -153,14 +173,66 @@ void multMatMat (MatRow A, MatRow B, int n, MatRow C)
 }
 
 
+//Unrolling and jam
 void multMatMat_otim (MatRow A, MatRow B, int n, MatRow C)
 {
+  int k = 4;
 
   /* Efetua a multiplicação */
+
   for (int i=0; i < n; ++i)
-    for (int j=0; j < n; ++j)
-      for (int k=0; k < n; ++k)
-	C[i*n+j] += A[i*n+k] * B[k*n+j];
+  {
+    for (int j=0; j < n-n%k; j+=k)
+    {
+      C[idx(i, n, j)] = C[idx(i, n, j+k-3)] = C[idx(i, n, j+k-2)] = C[idx(i, n, j+k-1)] = 0.0;
+      for (int l=0; l < n; ++l)
+      {
+	      C[idx(i, n, j)] += A[idx(i, n, l)] * B[idx(k, n, l)];
+	      C[idx(i, n, j+k-3)] += A[idx(i, n, l)] * B[idx(l, n, j+k-3)];
+	      C[idx(i, n, j+k-2)] += A[idx(i, n, l)] * B[idx(l, n, j+k-2)];
+	      C[idx(i, n, j+k-1)] += A[idx(i, n, l)] * B[idx(l, n, j+k-1)];
+      }
+    }
+
+    for(int j=n-n%k; j < n; ++j)
+    {
+      C[idx(i, n, j)] = 0.0;
+      for(int l=0; l < n; ++l)
+      {
+        C[idx(i, n, j)] += A[idx(i, n, l)]*B[idx(k, n, l)];
+      }
+    }
+  }
+
+}
+
+// Unrolling and Jam and 
+void multMatMat_megaotim (MatRow A, MatRow B, int n, MatRow C)
+{
+  int k = 2;
+  int b = 4;
+
+  /* Efetua a multiplicação */
+
+  for (int ii=0; ii < n/b; ++ii)
+  {
+    int istart = ii*b; int iend = istart+b;
+    for (int jj=0; jj < n/b; ++jj)
+    {
+      int jstart = jj*b; int jend = jstart+b;
+    for()
+    {
+       for(int i=istart; i < iend; i+=k)
+       {
+         for(int j=jstart; j < jend; ++j)
+         { 
+
+         }
+       }
+      }
+    }
+  }
+
 }
 
 /**

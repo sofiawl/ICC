@@ -1,12 +1,16 @@
+# Caminho base do LIKWID
+LIKWID_HOME=/home/soft/likwid
+LIKWID_INCLUDE=${LIKWID_HOME}/include
+LIKWID_LIB=${LIKWID_HOME}/lib
+
 # PROGRAMA
-        PROG = matmult
-        OBJS = $(PROG).o matriz.o
+PROG = matmult
+OBJS = $(PROG).o matriz.o
 
 # Compilador
-           CC = gcc -Wall
-
-       CFLAGS = -O3 -mavx2 -march=native
-       LFLAGS = -lm
+CC = gcc -Wall
+CFLAGS = -O3 -mavx2 -march=native -I$(LIKWID_INCLUDE)
+LFLAGS = -lm -L$(LIKWID_LIB) -llikwid
 
 # Lista de arquivos para distribuição
 DISTFILES = *.c *.h README.md Makefile perfctr
@@ -15,23 +19,23 @@ DISTDIR = `basename ${PWD}`
 .PHONY: all debug clean purge dist
 
 %.o: %.c %.h
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c $
 
 all: $(PROG)
 
-debug:         CFLAGS += -g -D_DEBUG_
-debug:         $(PROG)
+debug: CFLAGS += -g -D_DEBUG_
+debug: $(PROG)
 
-$(PROG): $(OBJS) 
+$(PROG): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 clean:
 	@echo "Limpando ...."
-	@rm -f *~ *.bak *.tmp core 
+	@rm -f *~ *.bak *.tmp core
 
-purge:   clean
+purge: clean
 	@echo "Faxina ...."
-	@rm -f  $(PROG) *.o a.out $(DISTDIR) $(DISTDIR).tar
+	@rm -f $(PROG) *.o a.out $(DISTDIR) $(DISTDIR).tar
 	@rm -f *.png marker.out
 
 dist: purge
@@ -39,4 +43,3 @@ dist: purge
 	@ln -s . $(DISTDIR)
 	@tar -cvf $(DISTDIR).tar $(addprefix ./$(DISTDIR)/, $(DISTFILES))
 	@rm -f $(DISTDIR)
-
