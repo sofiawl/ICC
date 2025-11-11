@@ -43,4 +43,7 @@ int main(int argc, char **argv) {
   for (int i = 0; i <= G; ++i)
     fprintf(stderr, "a%d = %1.15e\n", i, a[i]);
 #endif
+
+  free(a);
+  return 0;
 }

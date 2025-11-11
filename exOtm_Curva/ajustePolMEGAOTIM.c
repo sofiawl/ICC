@@ -20,34 +20,33 @@ inline double powOTIM(double num, int exp){
   return num;
 }
 
-void montaSL(double ** restrict A, double *  restrict b, int n, long long int p, double * restrict x, double * restrict y) {
-  // o primeiro valor de A é p
+void montaSL(double ** restrict A, double * restrict b, int n, long long int p, double * restrict x, double * restrict y) {
   A[0][0] = p;
 
-  // Laço sobre 'p' é o mais externo porque este é o vetor com mais elementos (-cachemiss)
-  for (int i=0; i<p; i++){
-    long long int powX;
+  for (long long int i = 0; i < p; i++) {
+    double powX = 1.0;  
     b[0] += y[i];
-    
-    powX = 1.0;
+
     // Calcula a primeira linha de A e o vetor b
-    for (int j=0; j<n; j++){
-      powX *= x[i];
-      A[0][j] += powX;
-      b[j] += powX;
+    for (int j = 1; j < n; j++) {  
+      powX *= x[i];  
+      A[0][j] += powX;      // A[0][j] = sum(x[i]^j) 
+      b[j] += powX * y[i];  // b[j] = sum(y[i] * x[i]^j) 
     }
 
     // Calcula a última coluna de A
-    for (int k=0; k<n; k++){
-      powX *= x[i];
-      A[k][n] += powX;
+    for (int k = 1; k < n; k++) {
+      powX *= x[i];  
+      A[k][n-1] += powX;    // A[k][n-1] = sum(x[i]^(k+n-1)) para k = 1..n-1
     }
   }
-
-  // Distribui os valores para o resto da matriz
-  for (int i=1; i<n; i++)
-    for (int j=0; j<n-1; j++)
+  
+  // Distribui os valores para o resto da matriz (simetria)
+  for (int i = 1; i < n; i++) {
+    for (int j = 0; j < n-1; j++) {
       A[i][j] = A[i-1][j+1];
+    }
+  }
 }
 
 void eliminacaoGauss(double ** restrict A, double * restrict b, int n) {
@@ -80,38 +79,46 @@ void eliminacaoGauss(double ** restrict A, double * restrict b, int n) {
 }
 
 void retrossubs(double ** restrict A, double * restrict b, double * restrict x, int n) {
-  int maxi = n - (n%FATORUNROLL);
   
+  // i = 5, i >= 1
   for (int i = n-1; i >= (n%FATORUNROLL); i-=FATORUNROLL) {
     x[i] = b[i];
+
     for (int j = i+1; j < n; ++j)
       x[i] -= A[i][j]*x[j];
     x[i] /= A[i][i];
+    printf("Iteração i=%d: x[i]=%.15e\n", i, x[i]);
   
-    int auxi = i+1;
+    int auxi = i-1;
     x[auxi] = b[auxi];
     for (int j = auxi+1; j < n; ++j)
       x[auxi] -= A[auxi][j]*x[j];
     x[auxi] /= A[auxi][auxi];
+    printf("Iteração auxi=%d: x[auxi]=%.15e\n", auxi, x[auxi]);
   
-    auxi++;    
+    auxi--;    
     x[auxi] = b[auxi];
     for (int j = auxi+1; j < n; ++j)
       x[auxi] -= A[auxi][j]*x[j];
     x[auxi] /= A[auxi][auxi];
+    printf("Iteração auxi=%d: x[auxi]=%.15e\n", auxi, x[auxi]);
   
-    auxi++;    
+    auxi--;    
     x[auxi] = b[auxi];
     for (int j = auxi+1; j < n; ++j)
       x[auxi] -= A[auxi][j]*x[j];
     x[auxi] /= A[auxi][auxi];
+    printf("Iteração auxi=%d: x[auxi]=%.15e\n", auxi, x[auxi]);
   }
 
-  for (int i = (n%FATORUNROLL)-1; i >= 0; i-=FATORUNROLL) {
+  // i = 0, i>=0
+  for (int i = (n%FATORUNROLL)-1; i >= 0; i--) {
     x[i] = b[i];
     for (int j = i+1; j < n; ++j)
       x[i] -= A[i][j]*x[j];
     x[i] /= A[i][i];
+
+    printf("Iteração i=%d: x[i]=%.15e\n", i, x[i]);
   }
 
 }
@@ -152,6 +159,14 @@ int main() {
   }
   
   double *b = (double *) malloc(sizeof(double)*g);
+
+  for (int i = 0; i < g; i++) {
+    b[i] = 0.0;
+    for (int j = 0; j < g; j++) {
+      A[i][j] = 0.0;
+    }
+  }
+
   double *alpha = (double *) malloc(sizeof(double)*g); // coeficientes ajuste
 
   LIKWID_MARKER_INIT;
@@ -160,7 +175,7 @@ int main() {
   marker = markerName("SL",p);
   LIKWID_MARKER_START (marker);
   double tSL = timestamp();
-  montaSL(A, b, g, p, x, y);
+  montaSL(A, b, g, p, x, y);  
   tSL = timestamp() - tSL;
   LIKWID_MARKER_STOP(marker);
   free(marker);
@@ -169,7 +184,8 @@ int main() {
   marker = markerName("EG",p);
   LIKWID_MARKER_START(marker);
   double tEG = timestamp();
-  eliminacaoGauss(A, b, g); 
+  eliminacaoGauss(A, b, g);
+  printf("n: %d\n", g); 
   retrossubs(A, b, alpha, g); 
   tEG = timestamp() - tEG;
   LIKWID_MARKER_STOP(marker);
@@ -189,6 +205,18 @@ int main() {
 
   // Imprime os tempos
   printf("%lld %1.10e %1.10e\n", P, tSL, tEG);
+
+  // Após imprimir os tempos, ANTES do return 0:
+
+  // Libera memória alocada
+  for (int i = 0; i < g; ++i) {
+      free(A[i]);
+  }
+  free(A);
+  free(b);
+  free(alpha);
+  free(x);
+  free(y);
 
   return 0;
 }

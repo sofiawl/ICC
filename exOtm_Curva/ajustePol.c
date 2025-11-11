@@ -62,6 +62,8 @@ void retrossubs(double **A, double *b, double *x, int n) {
     for (int j = i+1; j < n; ++j)
       x[i] -= A[i][j]*x[j];
     x[i] /= A[i][i];
+    printf("Iteração i=%d: x[i]=%.15e\n", i, x[i]);
+
   }
 }
 
@@ -71,6 +73,19 @@ double Pol(double x, int G, double *alpha) {
     Px += alpha[i]*pow(x,i);
   
   return Px;
+}
+
+void imprimeSistema(double **A, double *b, int n) {
+    printf("\n=== Matriz A ===\n");
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j)
+            printf("% .6e ", A[i][j]);  
+        printf("\n");
+    }
+
+    printf("\n=== Vetor b ===\n");
+    for (int i = 0; i < n; ++i)
+        printf("% .6e\n", b[i]);
 }
 
 int main() {
@@ -108,16 +123,21 @@ int main() {
   LIKWID_MARKER_STOP(marker);
   free(marker);
 
+  //imprimeSistema(A, b, g);
+  
   // (B) Resolve SL
   marker = markerName("EG",p);
   LIKWID_MARKER_START(marker);
   double tEG = timestamp();
   eliminacaoGauss(A, b, g); 
+  printf("n: %d\n", g);
   retrossubs(A, b, alpha, g); 
   tEG = timestamp() - tEG;
   LIKWID_MARKER_STOP(marker);
   free(marker);
 
+  //imprimeSistema(A, b, g);
+  
   LIKWID_MARKER_CLOSE;
 
   // Imprime coeficientes
