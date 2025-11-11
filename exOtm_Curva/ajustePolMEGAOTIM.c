@@ -21,58 +21,33 @@ inline double powOTIM(double num, int exp){
 }
 
 void montaSL(double ** restrict A, double *  restrict b, int n, long long int p, double * restrict x, double * restrict y) {
-  int maxi = n - (n%FATORUNROLL);
-  
-  // Unroll and Jam
-  for (int i = 0; i < maxi; i+=FATORUNROLL) {
+  // o primeiro valor de A é p
+  A[0][0] = p;
 
-    b[i] = b[i+1] = b[i+2] = b[i+3] = 0.0;
+  // Laço sobre 'p' é o mais externo porque este é o vetor com mais elementos (-cachemiss)
+  for (int i=0; i<p; i++){
+    long long int powX;
+    b[0] += y[i];
     
-    for (int j = 0; j < n; ++j) {
+    powX = 1.0;
+    // Calcula a primeira linha de A e o vetor b
+    for (int j=0; j<n; j++){
+      powX *= x[i];
+      A[0][j] += powX;
+      b[j] += powX;
+    }
 
-      // Cálculo de A
-      A[i][j] = A[i+1][j] = A[i+2][j] = A[i+3][j] = 0.0;
-      int sumij = i+j;
-      for (long long int k = 0; k < p; ++k) {
-	      A[i][j] += powOTIM(x[k], sumij);
-      }
-      sumij++;
-      for (long long int k = 0; k < p; ++k) {
-	      A[i+1][j] += powOTIM(x[k], sumij);
-      }
-      sumij++;
-      for (long long int k = 0; k < p; ++k) {
-	      A[i+2][j] += powOTIM(x[k], sumij);
-      }
-      sumij++;
-      for (long long int k = 0; k < p; ++k) {
-	      A[i+3][j] += powOTIM(x[k], sumij);
-      }
-    
-      // Cálculo de b
-      b[i] += powOTIM(x[j],i) * y[j];
-      b[i+1] += powOTIM(x[j],i+1) * y[j];
-      b[i+2] += powOTIM(x[j],i+2) * y[j];
-      b[i+3] += powOTIM(x[j],i+3) * y[j]; 
+    // Calcula a última coluna de A
+    for (int k=0; k<n; k++){
+      powX *= x[i];
+      A[k][n] += powX;
     }
   }
 
-  // Resíduo do laço
-  for (int i = n-(n%FATORUNROLL); i < n; ++i){
-    b[i] = 0.0;
-
-    // Cálculo do resíduo de A
-    for (int j = 0; j < n; ++j){
-      A[i][j] = 0.0;
-      int sumij = i+j;
-      for (long long int k = 0; k < p; ++k) {
-	      A[i][j] += powOTIM(x[k], sumij);
-      }
-    
-      // Cálculo do resíduo de B
-      b[i] += powOTIM(x[j],i) * y[j];
-    }
-  }
+  // Distribui os valores para o resto da matriz
+  for (int i=1; i<n; i++)
+    for (int j=0; j<n-1; j++)
+      A[i][j] = A[i-1][j+1];
 }
 
 void eliminacaoGauss(double ** restrict A, double * restrict b, int n) {
@@ -105,12 +80,40 @@ void eliminacaoGauss(double ** restrict A, double * restrict b, int n) {
 }
 
 void retrossubs(double ** restrict A, double * restrict b, double * restrict x, int n) {
-  for (int i = n-1; i >= 0; --i) {
+  int maxi = n - (n%FATORUNROLL);
+  
+  for (int i = n-1; i >= (n%FATORUNROLL); i-=FATORUNROLL) {
+    x[i] = b[i];
+    for (int j = i+1; j < n; ++j)
+      x[i] -= A[i][j]*x[j];
+    x[i] /= A[i][i];
+  
+    int auxi = i+1;
+    x[auxi] = b[auxi];
+    for (int j = auxi+1; j < n; ++j)
+      x[auxi] -= A[auxi][j]*x[j];
+    x[auxi] /= A[auxi][auxi];
+  
+    auxi++;    
+    x[auxi] = b[auxi];
+    for (int j = auxi+1; j < n; ++j)
+      x[auxi] -= A[auxi][j]*x[j];
+    x[auxi] /= A[auxi][auxi];
+  
+    auxi++;    
+    x[auxi] = b[auxi];
+    for (int j = auxi+1; j < n; ++j)
+      x[auxi] -= A[auxi][j]*x[j];
+    x[auxi] /= A[auxi][auxi];
+  }
+
+  for (int i = (n%FATORUNROLL)-1; i >= 0; i-=FATORUNROLL) {
     x[i] = b[i];
     for (int j = i+1; j < n; ++j)
       x[i] -= A[i][j]*x[j];
     x[i] /= A[i][i];
   }
+
 }
 
 double Pol(double x, int G, double * restrict alpha) {
@@ -128,7 +131,7 @@ int main() {
   string_t marker;
 
   scanf("%d %lld", &G, &P);
-  
+
   g = G+1; // tamanho do SL (G + 1)
   if (g < FATORUNROLL){
     printf("O grau do polinômio deve ser maior ou igual a %d\n", FATORUNROLL);
@@ -144,14 +147,15 @@ int main() {
     scanf("%lf %lf", x+i, y+i);
 
   double **A = (double **) malloc(sizeof(double *)*g);
-  for (int i = 0; i < g; ++i)
+  for (int i = 0; i < g; ++i){
     A[i] = (double *) malloc(sizeof(double)*g);
+  }
   
   double *b = (double *) malloc(sizeof(double)*g);
   double *alpha = (double *) malloc(sizeof(double)*g); // coeficientes ajuste
 
   LIKWID_MARKER_INIT;
-  
+
   // (A) Gera SL
   marker = markerName("SL",p);
   LIKWID_MARKER_START (marker);
